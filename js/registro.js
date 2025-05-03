@@ -1,128 +1,152 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const body = document.body;
-  
-    // Estilos
-    const style = document.createElement("style");
-    style.textContent = `
+  renderRegisterLayout();
+});
+
+function renderRegisterLayout() {
+  document.body.innerHTML = ""; // Limpiar el body
+
+  injectStylesRegister();
+
+  const container = document.createElement("div");
+  container.className = "container";
+
+  const header = document.createElement("header");
+  header.textContent = "Registrar Nueva Imagen";
+  header.className = "header";
+
+  const formContainer = document.createElement("div");
+  formContainer.className = "form-container";
+
+  const form = document.createElement("form");
+  form.className = "form";
+
+  const urlField = createField("URL de la imagen", "url", "text", "url");
+  const descField = createField("Descripción", "descripcion", "text", "descripcion");
+
+  form.appendChild(urlField);
+  form.appendChild(descField);
+
+  const submitBtn = document.createElement("button");
+  submitBtn.textContent = "Registrar Imagen";
+  submitBtn.type = "submit";
+  submitBtn.className = "btn";
+  form.appendChild(submitBtn);
+
+  form.addEventListener("submit", handleSubmit);
+
+  formContainer.appendChild(form);
+
+  container.appendChild(header);
+  container.appendChild(formContainer);
+
+  document.body.appendChild(container);
+}
+
+function createField(labelText, name, type, id) {
+  const fieldWrapper = document.createElement("div");
+  fieldWrapper.className = "form-field";
+
+  const label = document.createElement("label");
+  label.textContent = labelText;
+  label.setAttribute("for", id);
+
+  const input = document.createElement("input");
+  input.type = type;
+  input.name = name;
+  input.id = id;
+  input.required = true;
+
+  fieldWrapper.appendChild(label);
+  fieldWrapper.appendChild(input);
+
+  return fieldWrapper;
+}
+
+function handleSubmit(event) {
+  event.preventDefault();
+
+  const url = document.querySelector("#url").value;
+  const descripcion = document.querySelector("#descripcion").value;
+
+  if (url.trim() === "" || descripcion.trim().length < 3) {
+      alert("Por favor, ingrese una URL válida y una descripción de al menos 3 caracteres.");
+      return;
+  }
+
+  const imagen = { url, descripcion };
+
+  let images = JSON.parse(localStorage.getItem("imagenes")) || [];
+  images.push(imagen);
+  localStorage.setItem("imagenes", JSON.stringify(images));
+
+  window.location.href = "index.html";
+}
+
+function injectStylesRegister() {
+  const style = document.createElement("style");
+  style.textContent = `
       body {
-        margin: 0;
-        font-family: 'Poppins', sans-serif;
-        background: linear-gradient(to right, #4facfe, #00f2fe);
-        height: 100vh;
-        display: flex;
-        justify-content: center;
-        align-items: center;
+          margin: 0;
+          font-family: 'Segoe UI', sans-serif;
+          background-color: #f0f0f0;
+      }
+      .container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+          padding: 20px;
+      }
+      header {
+          background-color: #333;
+          color: white;
+          padding: 20px;
+          width: 100%;
+          text-align: center;
       }
       .form-container {
-        background-color: white;
-        border-radius: 16px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-        padding: 30px;
-        width: 350px;
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
+          background-color: white;
+          padding: 25px;
+          box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+          border-radius: 8px;
+          width: 100%;
+          max-width: 400px;
       }
-      .form-container h2 {
-        text-align: center;
-        margin-bottom: 10px;
-        color: #333;
+      .form-field {
+          margin-bottom: 20px;
       }
-      .form-group label {
-        font-weight: 600;
-        margin-bottom: 5px;
-        display: block;
-        color: #444;
+      .form-field label {
+          display: block;
+          margin-bottom: 8px;
+          font-size: 1rem;
+          color: #333;
       }
-      .form-group input {
-        width: 100%;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px solid #ccc;
-        font-size: 14px;
-        transition: 0.3s;
+      .form-field input {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          font-size: 1rem;
       }
-      .form-group input:focus {
-        border-color: #4facfe;
-        outline: none;
-        box-shadow: 0 0 5px rgba(79, 172, 254, 0.5);
+      .form-field input:focus {
+          border-color: #00bcd4;
+          outline: none;
+          background-color: #f0f0f0;
       }
-      .submit-btn {
-        background-color: #4facfe;
-        color: white;
-        padding: 12px;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: background-color 0.3s;
+      .btn {
+          background-color: #00bcd4;
+          color: white;
+          padding: 12px;
+          border: none;
+          border-radius: 5px;
+          width: 100%;
+          font-size: 1.2rem;
+          cursor: pointer;
       }
-      .submit-btn:hover {
-        background-color: #379efd;
+      .btn:hover {
+          background-color: #0097a7;
       }
-    `;
-    document.head.appendChild(style);
-  
-    // Contenedor del formulario
-    const container = document.createElement("div");
-    container.className = "form-container";
-  
-    const title = document.createElement("h2");
-    title.textContent = "Agregar Imagen";
-  
-    const form = document.createElement("form");
-  
-    const createField = (labelText, inputType, name) => {
-      const wrapper = document.createElement("div");
-      wrapper.className = "form-group";
-  
-      const label = document.createElement("label");
-      label.htmlFor = name;
-      label.textContent = labelText;
-  
-      const input = document.createElement("input");
-      input.type = inputType;
-      input.id = name;
-      input.name = name;
-      input.required = true;
-  
-      wrapper.appendChild(label);
-      wrapper.appendChild(input);
-      return wrapper;
-    };
-  
-    const urlField = createField("URL de la Imagen", "url", "url");
-    const descField = createField("Descripción", "text", "descripcion");
-  
-    const submit = document.createElement("button");
-    submit.className = "submit-btn";
-    submit.type = "submit";
-    submit.textContent = "Guardar";
-  
-    form.appendChild(urlField);
-    form.appendChild(descField);
-    form.appendChild(submit);
-    container.appendChild(title);
-    container.appendChild(form);
-    body.appendChild(container);
-  
-    // Evento de envío
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-  
-      const url = form.url.value.trim();
-      const descripcion = form.descripcion.value.trim();
-  
-      if (!url || descripcion.length < 3) {
-        alert("La URL no puede estar vacía y la descripción debe tener al menos 3 caracteres.");
-        return;
-      }
-  
-      const galeria = JSON.parse(localStorage.getItem("gallery")) || [];
-      galeria.push({ url, descripcion });
-      localStorage.setItem("gallery", JSON.stringify(galeria));
-  
-      location.href = "index.html"; // Redirigir a la página principal
-    });
-  });
-  
+  `;
+  document.head.appendChild(style);
+}
